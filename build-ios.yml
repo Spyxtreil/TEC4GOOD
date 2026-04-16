@@ -1,0 +1,8 @@
+{
+	"appId": "com.focusFlow.app",
+	"appName": "focusFlow",
+	"webDir": "dist",
+	"packageClassList": [
+		"BluetoothLe"
+	]
+}
