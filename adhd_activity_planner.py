@@ -3,10 +3,17 @@
 ADHD Activity & Step Planner
 Calculates daily steps and recommends structured physical activities
 to help individuals with ADHD manage impulse control.
+
+DISCLAIMER: This tool is for educational purposes only. It is NOT
+medical advice and does not replace consultation with a qualified
+healthcare professional. See TERMS_AND_CONDITIONS.md in the
+repository root before using.
 """
 
 import math
+import os
 import random
+import sys
 from dataclasses import dataclass
 from typing import Optional
 
@@ -263,6 +270,10 @@ def steps_to_distance_km(steps: int, height_cm: float) -> float:
 
 def steps_to_calories(steps: int, weight_kg: float) -> int:
     """Approximate calories burned from steps."""
+    # Defense in depth: guard against zero / negative weight even though
+    # the input layer clamps to [20, 250].
+    if weight_kg <= 0:
+        return 0
     # ~0.04 kcal per step per kg body weight / 70 kg reference
     return int(steps * 0.04 * (weight_kg / 70))
 
@@ -317,18 +328,38 @@ def recommend_activities(
 DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 def build_weekly_schedule(activities: list[Activity], available_days: int) -> dict[str, Optional[Activity]]:
-    """Spread recommended activities across the week, inserting rest days."""
+    """Spread recommended activities across the week, inserting rest days.
+
+    Tries to avoid scheduling two High-intensity sessions on consecutive
+    days. Falls back to the original ordering if the constraint cannot
+    be satisfied (e.g. nearly every session is High).
+    """
     schedule: dict[str, Optional[Activity]] = {d: None for d in DAYS}
-    active_days = DAYS[:available_days]
+    active_days = DAYS[:max(0, min(available_days, len(DAYS)))]
+
     sessions: list[Activity] = []
     for a in activities:
         sessions.extend([a] * a.sessions_per_week)
     random.shuffle(sessions)
 
-    # Distribute sessions avoiding back-to-back high-intensity
-    for i, day in enumerate(active_days):
-        if sessions:
-            schedule[day] = sessions.pop(0)
+    # Greedy placement with a lookahead that avoids consecutive High days.
+    placed: list[Activity] = []
+    remaining = sessions.copy()
+    for i in range(len(active_days)):
+        prev_high = bool(placed) and placed[-1].intensity == "High"
+        pick_idx = None
+        for idx, s in enumerate(remaining):
+            if prev_high and s.intensity == "High":
+                continue
+            pick_idx = idx
+            break
+        if pick_idx is None and remaining:
+            pick_idx = 0  # constraint unsatisfiable — accept it
+        if pick_idx is not None:
+            placed.append(remaining.pop(pick_idx))
+
+    for day, session in zip(active_days, placed):
+        schedule[day] = session
 
     return schedule
 
@@ -337,15 +368,22 @@ def build_weekly_schedule(activities: list[Activity], available_days: int) -> di
 #  PRETTY PRINTER
 # ─────────────────────────────────────────────
 
-CYAN    = "\033[96m"
-GREEN   = "\033[92m"
-YELLOW  = "\033[93m"
-MAGENTA = "\033[95m"
-BLUE    = "\033[94m"
-RED     = "\033[91m"
-BOLD    = "\033[1m"
-DIM     = "\033[2m"
-RESET   = "\033[0m"
+# Only emit ANSI color codes when stdout is a real terminal; otherwise
+# (e.g. when redirected to a file or piped) strip them to avoid garbage.
+_USE_COLOR = sys.stdout.isatty() and os.environ.get("NO_COLOR") is None
+
+def _c(code: str) -> str:
+    return code if _USE_COLOR else ""
+
+CYAN    = _c("\033[96m")
+GREEN   = _c("\033[92m")
+YELLOW  = _c("\033[93m")
+MAGENTA = _c("\033[95m")
+BLUE    = _c("\033[94m")
+RED     = _c("\033[91m")
+BOLD    = _c("\033[1m")
+DIM     = _c("\033[2m")
+RESET   = _c("\033[0m")
 
 INTENSITY_COLOR = {"Low": GREEN, "Medium": YELLOW, "High": RED}
 
@@ -435,10 +473,19 @@ def print_adhd_science_note():
 #  INPUT HELPERS
 # ─────────────────────────────────────────────
 
+def _safe_input(prompt: str) -> str:
+    """input() wrapper that turns EOF / Ctrl-D into a clean exit."""
+    try:
+        return input(prompt)
+    except EOFError:
+        print(f"\n\n  {DIM}Input stream closed. Goodbye!{RESET}")
+        sys.exit(0)
+
+
 def ask_int(prompt: str, lo: int, hi: int) -> int:
     while True:
         try:
-            val = int(input(f"  {CYAN}{prompt}{RESET} "))
+            val = int(_safe_input(f"  {CYAN}{prompt}{RESET} "))
             if lo <= val <= hi:
                 return val
             print(f"  {RED}Please enter a value between {lo} and {hi}.{RESET}")
@@ -449,7 +496,7 @@ def ask_int(prompt: str, lo: int, hi: int) -> int:
 def ask_float(prompt: str, lo: float, hi: float) -> float:
     while True:
         try:
-            val = float(input(f"  {CYAN}{prompt}{RESET} "))
+            val = float(_safe_input(f"  {CYAN}{prompt}{RESET} "))
             if lo <= val <= hi:
                 return val
             print(f"  {RED}Please enter a value between {lo} and {hi}.{RESET}")
@@ -458,22 +505,40 @@ def ask_float(prompt: str, lo: float, hi: float) -> float:
 
 
 def ask_choice(prompt: str, options: list[str]) -> str:
+    """Ask the user to pick one of *options*.
+
+    Accepts either the 1-based index or an unambiguous case-insensitive
+    prefix of the option name. Empty input is rejected (previous
+    implementation silently returned the first option for empty input
+    because `"" == ""[:0]` is True).
+    """
     opts_str = " / ".join(f"{YELLOW}[{i+1}]{RESET} {o}" for i, o in enumerate(options))
     while True:
         print(f"  {CYAN}{prompt}{RESET}")
         print(f"      {opts_str}")
-        raw = input("  → ").strip()
+        raw = _safe_input("  → ").strip()
+
+        if not raw:
+            print(f"  {RED}Please enter a choice.{RESET}")
+            continue
+
         if raw.isdigit() and 1 <= int(raw) <= len(options):
             return options[int(raw) - 1]
-        for o in options:
-            if raw.lower() == o.lower()[:len(raw)]:
-                return o
+
+        raw_low = raw.lower()
+        matches = [o for o in options if o.lower().startswith(raw_low)]
+        if len(matches) == 1:
+            return matches[0]
+        if len(matches) > 1:
+            joined = ", ".join(matches)
+            print(f"  {RED}Ambiguous — matches: {joined}. Be more specific.{RESET}")
+            continue
         print(f"  {RED}Invalid choice. Enter a number or the option name.{RESET}")
 
 
 def ask_yes_no(prompt: str) -> bool:
     while True:
-        raw = input(f"  {CYAN}{prompt} (y/n){RESET} ").strip().lower()
+        raw = _safe_input(f"  {CYAN}{prompt} (y/n){RESET} ").strip().lower()
         if raw in ("y", "yes"):
             return True
         if raw in ("n", "no"):
@@ -485,8 +550,30 @@ def ask_yes_no(prompt: str) -> bool:
 #  MAIN
 # ─────────────────────────────────────────────
 
+def show_disclaimer_and_require_acceptance() -> None:
+    """Print the medical disclaimer and require explicit user acceptance."""
+    section("⚠️  IMPORTANT — READ BEFORE CONTINUING")
+    print(f"""
+  {BOLD}This tool is for EDUCATIONAL and INFORMATIONAL purposes only.{RESET}
+
+  It is {BOLD}NOT{RESET} a medical device and does {BOLD}NOT{RESET} replace advice from
+  a physician, psychiatrist, dietitian or certified professional.
+
+  Do not use this tool as a substitute for diagnosis or treatment.
+  Consult a healthcare provider before starting any exercise plan,
+  especially if you have cardiovascular, respiratory, musculoskeletal
+  or psychiatric conditions.
+
+  Full terms: see {BOLD}TERMS_AND_CONDITIONS.md{RESET} in the repository root.
+""")
+    if not ask_yes_no("Do you understand and accept these terms?"):
+        print(f"\n  {YELLOW}You must accept the terms to use this tool. Exiting.{RESET}\n")
+        sys.exit(0)
+
+
 def main():
     banner()
+    show_disclaimer_and_require_acceptance()
 
     print(f"  {BOLD}Welcome! Answer a few questions and I'll build your personalised{RESET}")
     print(f"  {BOLD}ADHD activity plan with daily step targets.{RESET}\n")
@@ -551,4 +638,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print(f"\n\n  {DIM}Session cancelled. Goodbye!{RESET}\n")
+        sys.exit(0)

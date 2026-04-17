@@ -1,20 +1,29 @@
 /*
-  Pulso simple con MAX30102 y Arduino Nano
+  Pulso simple con MAX30102 y Arduino Nano / Uno
   --------------------------------------------------
-  Librería necesaria (instalar desde el Library Manager del IDE de Arduino):
+  DISCLAIMER:
+    Este sketch es de PROTOTIPADO y USO EDUCATIVO. NO es un
+    dispositivo medico y NO debe usarse para diagnostico ni
+    toma de decisiones clinicas. Ver TERMS_AND_CONDITIONS.md
+    en la raiz del repositorio.
+
+  Libreria necesaria (instalar desde el Library Manager del IDE de Arduino):
     "SparkFun MAX3010x Pulse and Proximity Sensor Library"  by SparkFun
 
-  Conexiones (Arduino Nano <-> MAX30102):
+  Conexiones (Arduino Nano / Uno <-> MAX30102):
     VIN  -> 3.3V  (NO uses 5V directamente al sensor)
     GND  -> GND
     SDA  -> A4
     SCL  -> A5
 
-  Cómo usarlo:
-    1. Sube este código al Nano.
+  Como usarlo:
+    1. Sube este codigo al Arduino.
     2. Abre el Monitor Serie a 115200 baudios.
     3. Coloca la yema del dedo sobre el sensor, sin apretar mucho, y espera
        unos segundos a que se estabilice la lectura.
+
+  Para la version completa con SpO2, calibracion y comandos por
+  serial, ver sensooooor2.ino.
 */
 
 #include <Wire.h>
@@ -33,20 +42,37 @@ int beatAvg;
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Iniciando MAX30102...");
+  delay(500);
 
-  // Inicializa el sensor por I2C a velocidad estándar
-  if (!particleSensor.begin(Wire, I2C_SPEED_STANDARD)) {
-    Serial.println("No se encontro el MAX30102. Revisa el cableado.");
-    while (1);
+  Serial.println(F("==============================================="));
+  Serial.println(F("  AVISO: dispositivo educativo / prototipo."));
+  Serial.println(F("  NO es un oximetro medico. Ver TERMS_AND_"));
+  Serial.println(F("  CONDITIONS.md antes de usar."));
+  Serial.println(F("==============================================="));
+  Serial.println(F("Iniciando MAX30102..."));
+
+  // Reintento con timeout en vez de bloquear para siempre.
+  const unsigned long startT = millis();
+  bool ok = false;
+  while (millis() - startT < 10000UL) {
+    if (particleSensor.begin(Wire, I2C_SPEED_STANDARD)) { ok = true; break; }
+    Serial.println(F("  Sensor no encontrado. Reintentando..."));
+    delay(1000);
+  }
+  if (!ok) {
+    Serial.println(F("ERROR: MAX30102 no responde. Revisa el cableado."));
+    while (true) {
+      delay(3000);
+      Serial.println(F("  (sin sensor) reinicia tras revisar conexiones."));
+    }
   }
 
-  Serial.println("Coloca tu dedo en el sensor con presion ligera.");
+  Serial.println(F("Coloca tu dedo en el sensor con presion ligera."));
 
-  // Configuración básica recomendada por SparkFun
-  particleSensor.setup();                    // configuración por defecto
-  particleSensor.setPulseAmplitudeRed(0x0A); // LED rojo bajo (solo para indicar que está encendido)
-  particleSensor.setPulseAmplitudeGreen(0);  // apaga el LED verde (MAX30102 no lo tiene, por seguridad)
+  // Configuracion basica recomendada por SparkFun
+  particleSensor.setup();                    // configuracion por defecto
+  particleSensor.setPulseAmplitudeRed(0x0A); // LED rojo bajo (indicador)
+  particleSensor.setPulseAmplitudeGreen(0);  // MAX30102 no tiene verde; por seguridad
 }
 
 void loop() {

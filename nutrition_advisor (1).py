@@ -3,6 +3,14 @@
   AI-Assisted Nutrition Advisor
   A CLI program to generate personalized daily nutrition plans
 =============================================================
+
+DISCLAIMER: This tool is for educational purposes only. The
+calculations are estimates based on population-level formulas
+(Mifflin-St Jeor, WHO activity factors) and do NOT replace the
+advice of a registered dietitian or physician. It does not
+account for allergies, medical conditions, pregnancy, eating
+disorders or medications. See TERMS_AND_CONDITIONS.md in the
+repository root before using.
 """
 
 # ── Standard library ──────────────────────────────────────
@@ -22,12 +30,24 @@ ACTIVITY_FACTORS = {
 }
 
 
+def _safe_input(prompt: str) -> str:
+    """input() wrapper that converts EOF into a clean exit."""
+    try:
+        return input(prompt)
+    except EOFError:
+        print("\n\n  Input stream closed. Goodbye!")
+        sys.exit(0)
+
+
 def get_float(prompt: str, min_val: float = 0, max_val: float = 1_000) -> float:
-    """Prompt the user for a float within [min_val, max_val]."""
+    """Prompt the user for a float in the inclusive range [min_val, max_val]."""
     while True:
         try:
-            value = float(input(prompt).strip())
-            if not (min_val < value <= max_val):
+            value = float(_safe_input(prompt).strip())
+            # Inclusive on both ends — previous version silently rejected
+            # exact-boundary values like weight=10 even though the prompt
+            # advertised 10 as valid.
+            if not (min_val <= value <= max_val):
                 print(f"  ⚠  Please enter a value between {min_val} and {max_val}.")
             else:
                 return value
@@ -39,7 +59,7 @@ def get_int(prompt: str, valid: set) -> int:
     """Prompt the user for an integer that belongs to *valid*."""
     while True:
         try:
-            value = int(input(prompt).strip())
+            value = int(_safe_input(prompt).strip())
             if value in valid:
                 return value
             print(f"  ⚠  Please choose one of: {sorted(valid)}")
@@ -47,10 +67,21 @@ def get_int(prompt: str, valid: set) -> int:
             print("  ⚠  Invalid input – please enter a whole number.")
 
 
+def get_yes_no(prompt: str) -> bool:
+    """Ask a yes/no question."""
+    while True:
+        raw = _safe_input(prompt).strip().lower()
+        if raw in ("y", "yes"):
+            return True
+        if raw in ("n", "no"):
+            return False
+        print("  ⚠  Please answer 'y' or 'n'.")
+
+
 def get_sex() -> str:
     """Ask the user for their biological sex (used in BMR formula)."""
     while True:
-        raw = input("Sex (male / female): ").strip().lower()
+        raw = _safe_input("Sex (male / female): ").strip().lower()
         if raw in ("male", "female", "m", "f"):
             return "male" if raw.startswith("m") else "female"
         print("  ⚠  Please type 'male' or 'female'.")
@@ -62,22 +93,32 @@ def collect_user_info() -> dict:
     print("  PERSONAL INFORMATION")
     print("=" * 60)
 
-    age    = get_float("Age (years): ",    min_val=1,  max_val=120)
+    # Minimum age 10: below that the Mifflin-St Jeor equation is not
+    # validated and can produce misleading results. Pediatric nutrition
+    # requires a clinical approach, not a CLI script.
+    age    = get_float("Age (years, 10–120): ",    min_val=10, max_val=120)
     sex    = get_sex()
-    height = get_float("Height (cm): ",    min_val=50, max_val=300)
-    weight = get_float("Weight (kg): ",    min_val=10, max_val=500)
+    height = get_float("Height (cm, 120–230): ",   min_val=120, max_val=230)
+    weight = get_float("Weight (kg, 25–300): ",    min_val=25,  max_val=300)
 
     print("\nActivity level:")
     for key, (label, _) in ACTIVITY_FACTORS.items():
         print(f"  {key}. {label}")
     activity = get_int("Choose (1–5): ", valid=set(ACTIVITY_FACTORS))
 
+    print("\nHealth flags (these will block the plan and send you to a professional):")
+    has_condition = get_yes_no(
+        "  Do you have diabetes, kidney disease, heart disease,\n"
+        "  an eating disorder, or are you pregnant/breastfeeding? (y/n): "
+    )
+
     return {
-        "age":      int(age),
-        "sex":      sex,
-        "height":   height,
-        "weight":   weight,
-        "activity": activity,
+        "age":            int(age),
+        "sex":            sex,
+        "height":         height,
+        "weight":         weight,
+        "activity":       activity,
+        "has_condition":  has_condition,
     }
 
 
@@ -111,9 +152,14 @@ def calculate_bmr(weight_kg: float, height_cm: float,
       Male:   BMR = 10·W + 6.25·H − 5·A + 5
       Female: BMR = 10·W + 6.25·H − 5·A − 161
     W = weight in kg, H = height in cm, A = age in years
+
+    Returns a non-negative BMR; values under 800 kcal/day are
+    clamped to 800 because anything below that is a modelling
+    artifact, not a physiological reality.
     """
     base = 10 * weight_kg + 6.25 * height_cm - 5 * age
-    return base + 5 if sex == "male" else base - 161
+    bmr = base + 5 if sex == "male" else base - 161
+    return max(bmr, 800.0)
 
 
 def calculate_tdee(bmr: float, activity_level: int) -> float:
@@ -354,15 +400,55 @@ def print_report(user: dict, bmr: float, tdee: float, adjusted_kcal: float,
 # SECTION 7 – MAIN ENTRY POINT
 # ─────────────────────────────────────────────────────────────────────────────
 
+def show_disclaimer_and_require_acceptance() -> None:
+    """Print the disclaimer up-front and require explicit acceptance."""
+    print(DLINE)
+    print("  ⚠  IMPORTANT — MEDICAL DISCLAIMER")
+    print(DLINE)
+    print(textwrap.fill(
+        "This program is for EDUCATIONAL purposes only. It is NOT a "
+        "medical tool and does NOT replace advice from a registered "
+        "dietitian or physician. The estimates shown are based on "
+        "population formulas and may be inaccurate for your individual "
+        "situation. Do NOT use this program if you have an eating "
+        "disorder or are currently in treatment for one.",
+        width=58, initial_indent="  ", subsequent_indent="  "))
+    print()
+    print("  Full terms: see TERMS_AND_CONDITIONS.md in the repository root.")
+    print(DLINE)
+    if not get_yes_no("  Do you understand and accept these terms? (y/n): "):
+        print("\n  You must accept the terms to use this tool. Exiting.\n")
+        sys.exit(0)
+
+
 def main() -> None:
     print(DLINE)
     print("  Welcome to the AI-Assisted Nutrition Advisor")
-    print("  Enter your details below to receive a personalised plan.")
     print(DLINE)
 
     try:
+        show_disclaimer_and_require_acceptance()
+
         # 1. Collect user input
         user = collect_user_info()
+
+        # 1b. Early exit for users with conditions that require
+        # professional input — the heuristic plan is unsafe for them.
+        if user.get("has_condition"):
+            print("\n" + DLINE)
+            print("  ⚠  PLAN NOT GENERATED")
+            print(DLINE)
+            print(textwrap.fill(
+                "Based on your answers, this tool is not appropriate "
+                "for you. Please consult a registered dietitian or "
+                "your physician for a plan tailored to your medical "
+                "situation. Generic calorie and macro targets can be "
+                "harmful in the presence of diabetes, kidney disease, "
+                "heart disease, eating disorders, pregnancy or "
+                "breastfeeding.",
+                width=58, initial_indent="  ", subsequent_indent="  "))
+            print(DLINE + "\n")
+            return
 
         # 2. Core calculations
         bmr  = calculate_bmr(user["weight"], user["height"],
