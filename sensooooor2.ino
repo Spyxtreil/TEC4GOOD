@@ -22,13 +22,29 @@
     Monitor Serie a 115200 baudios.
     Comandos (enviar por el monitor serie):
       c  -> iniciar rutina de calibracion (60 s con dedo quieto)
+      s  -> guardar calibracion actual en EEPROM
+      l  -> cargar calibracion desde EEPROM
       r  -> reiniciar valores de calibracion a los de fabrica
+      g  -> activar/desactivar log CSV (timestamp,ir,red,bpm,spo2)
       ?  -> mostrar ayuda
+
+  Notas:
+    - En AVR (Uno/Nano) se usa watchdog timer de 8 s para reiniciar
+      si el loop se cuelga. En ESP se usa el watchdog nativo.
+    - La calibracion sobrevive al reinicio si la guardas con 's'.
 */
 
 #include <Wire.h>
 #include "MAX30105.h"
 #include "heartRate.h"
+
+#if defined(ESP8266) || defined(ESP32)
+  // ESP cores traen su propio watchdog; no incluimos avr/wdt.
+#else
+  #include <avr/wdt.h>
+#endif
+
+#include <EEPROM.h>
 
 // ─── DETECCION DE PLATAFORMA ───────────────────────────────────
 #if defined(ESP8266)
@@ -79,6 +95,29 @@ struct Calib {
 
 Calib calib = {110.0f, 25.0f, 50000L, false};
 
+// ─── EEPROM LAYOUT ─────────────────────────────────────────────
+// Magic number que identifica que los bytes siguientes son nuestra
+// estructura Calib. Si cambias el layout, incrementa este valor.
+#define CALIB_MAGIC   0xC41B0002u
+#define CALIB_ADDR    0
+
+struct StoredCalib {
+  uint32_t magic;
+  Calib    data;
+  uint16_t checksum;  // suma simple XOR para detectar corrupcion
+};
+
+static uint16_t calibChecksum(const Calib &c) {
+  const uint8_t *p = (const uint8_t *)&c;
+  uint16_t sum = 0;
+  for (size_t i = 0; i < sizeof(Calib); i++) sum ^= (uint16_t)p[i] << (i & 7);
+  return sum;
+}
+
+// ─── LOG CSV ───────────────────────────────────────────────────
+bool csvLogging = false;
+bool csvHeaderPrinted = false;
+
 // ─── UMBRALES DE PRESENCIA DE DEDO ─────────────────────────────
 inline bool fingerPresent(long irValue) {
   return irValue > calib.finger_threshold;
@@ -99,9 +138,68 @@ void printDisclaimer() {
 void printHelp() {
   Serial.println(F("Comandos disponibles:"));
   Serial.println(F("  c -> iniciar calibracion (60 s, dedo quieto)"));
+  Serial.println(F("  s -> guardar calibracion en EEPROM"));
+  Serial.println(F("  l -> cargar calibracion desde EEPROM"));
   Serial.println(F("  r -> reset calibracion a valores de fabrica"));
+  Serial.println(F("  g -> activar/desactivar log CSV"));
   Serial.println(F("  ? -> mostrar esta ayuda"));
   Serial.println();
+}
+
+// ─── EEPROM HELPERS ────────────────────────────────────────────
+bool saveCalibToEEPROM() {
+  StoredCalib sc;
+  sc.magic    = CALIB_MAGIC;
+  sc.data     = calib;
+  sc.checksum = calibChecksum(calib);
+#if defined(ESP8266) || defined(ESP32)
+  EEPROM.begin(sizeof(StoredCalib) + 4);
+  EEPROM.put(CALIB_ADDR, sc);
+  bool ok = EEPROM.commit();
+  EEPROM.end();
+  return ok;
+#else
+  EEPROM.put(CALIB_ADDR, sc);
+  return true;  // EEPROM.put en AVR no devuelve estado
+#endif
+}
+
+bool loadCalibFromEEPROM() {
+  StoredCalib sc;
+#if defined(ESP8266) || defined(ESP32)
+  EEPROM.begin(sizeof(StoredCalib) + 4);
+  EEPROM.get(CALIB_ADDR, sc);
+  EEPROM.end();
+#else
+  EEPROM.get(CALIB_ADDR, sc);
+#endif
+  if (sc.magic != CALIB_MAGIC) return false;
+  if (sc.checksum != calibChecksum(sc.data)) return false;
+  // Sanity checks
+  if (sc.data.spo2_a < 80 || sc.data.spo2_a > 150) return false;
+  if (sc.data.spo2_b < 10 || sc.data.spo2_b > 60)  return false;
+  if (sc.data.finger_threshold < 10000L)           return false;
+  calib = sc.data;
+  return true;
+}
+
+// ─── WATCHDOG HELPERS ──────────────────────────────────────────
+inline void wdtSetup() {
+#if defined(ESP8266) || defined(ESP32)
+  // ESP core arranca su propio watchdog; nada que hacer aqui.
+#else
+  wdt_enable(WDTO_8S);
+#endif
+}
+
+inline void wdtKick() {
+#if defined(ESP8266)
+  yield();           // permite al scheduler de ESP resetear el WDT
+#elif defined(ESP32)
+  // nada — el scheduler de FreeRTOS alimenta el WDT entre tareas
+#else
+  wdt_reset();
+#endif
 }
 
 // ─── SpO2 ──────────────────────────────────────────────────────
@@ -165,6 +263,7 @@ void runCalibration() {
   unsigned long samples = 0;
   double irSumFinger = 0;
   while (millis() - t0 < 30000UL) {
+    wdtKick();
     particleSensor.check();
     while (particleSensor.available()) {
       long ir = particleSensor.getIR();
@@ -196,6 +295,7 @@ void runCalibration() {
   samples = 0;
   double irSumNoFinger = 0;
   while (millis() - t0 < 15000UL) {
+    wdtKick();
     particleSensor.check();
     while (particleSensor.available()) {
       long ir = particleSensor.getIR();
@@ -231,6 +331,7 @@ void runCalibration() {
   unsigned long waitStart = millis();
   String line = "";
   while (millis() - waitStart < 30000UL) {
+    wdtKick();
     while (Serial.available()) {
       char ch = (char)Serial.read();
       if (ch == '\n' || ch == '\r') {
@@ -248,6 +349,7 @@ have_line:
     bufIndex = 0; bufferFull = false;
     unsigned long measT0 = millis();
     while (millis() - measT0 < 10000UL) {
+      wdtKick();
       particleSensor.check();
       while (particleSensor.available()) {
         redBuffer[bufIndex] = particleSensor.getRed();
@@ -289,9 +391,23 @@ void handleSerialCommand() {
     case 'c': case 'C':
       mode = MODE_CALIBRATE;
       break;
+    case 's': case 'S':
+      if (saveCalibToEEPROM()) Serial.println(F("Calibracion guardada en EEPROM."));
+      else                     Serial.println(F("ERROR al guardar en EEPROM."));
+      break;
+    case 'l': case 'L':
+      if (loadCalibFromEEPROM()) Serial.println(F("Calibracion cargada desde EEPROM."));
+      else                       Serial.println(F("No hay calibracion valida guardada."));
+      break;
     case 'r': case 'R':
       calib = {110.0f, 25.0f, 50000L, false};
       Serial.println(F("Calibracion reseteada a valores de fabrica."));
+      break;
+    case 'g': case 'G':
+      csvLogging = !csvLogging;
+      csvHeaderPrinted = false;
+      Serial.print(F("Log CSV: "));
+      Serial.println(csvLogging ? F("ON") : F("OFF"));
       break;
     case '?':
       printHelp();
@@ -310,6 +426,7 @@ void setup() {
   delay(500);
 
   printDisclaimer();
+  wdtSetup();
 
 #if HAS_WIRE_BEGIN_PINS
   Wire.begin(SDA_PIN, SCL_PIN);
@@ -319,10 +436,18 @@ void setup() {
 
   Serial.println(F("Iniciando MAX30102..."));
 
+  // Intenta auto-cargar calibracion guardada
+  if (loadCalibFromEEPROM()) {
+    Serial.println(F("Calibracion guardada cargada desde EEPROM."));
+  } else {
+    Serial.println(F("Usando calibracion de fabrica (no hay guardada)."));
+  }
+
   // Reintento con timeout en vez de bloquear para siempre.
   const unsigned long startT = millis();
   bool ok = false;
   while (millis() - startT < 10000UL) {
+    wdtKick();
     if (particleSensor.begin(Wire, I2C_SPEED_FAST)) {
       ok = true;
       break;
@@ -335,6 +460,7 @@ void setup() {
     Serial.println(F("Revisa: VIN->3.3V, GND->GND, SDA/SCL correctos."));
     Serial.println(F("El sketch continuara en modo inactivo."));
     while (true) {
+      wdtKick();
       delay(2000);
       Serial.println(F("  (sin sensor) -- reinicia el Arduino cuando"
                        " hayas revisado el cableado."));
@@ -360,6 +486,7 @@ void setup() {
 
 // ─── LOOP ──────────────────────────────────────────────────────
 void loop() {
+  wdtKick();
   handleSerialCommand();
 
   if (mode == MODE_CALIBRATE) {
@@ -381,6 +508,21 @@ void loop() {
   if (bufIndex >= SPO2_BUFFER) {
     bufIndex = 0;
     bufferFull = true;
+  }
+
+  // Log CSV crudo (alta frecuencia) si esta activado
+  if (csvLogging) {
+    if (!csvHeaderPrinted) {
+      Serial.println(F("# CSV: timestamp_ms,ir,red,bpm,spo2"));
+      csvHeaderPrinted = true;
+    }
+    float spo2_now = calculateSpO2();
+    Serial.print(millis());        Serial.print(',');
+    Serial.print(irValue);         Serial.print(',');
+    Serial.print(redValue);        Serial.print(',');
+    Serial.print(beatsPerMinute, 1); Serial.print(',');
+    if (spo2_now > 0) Serial.println(spo2_now, 1);
+    else              Serial.println(F(""));
   }
 
   // Detectar latido solo si hay dedo

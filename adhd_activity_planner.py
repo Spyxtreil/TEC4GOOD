@@ -330,33 +330,35 @@ DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sun
 def build_weekly_schedule(activities: list[Activity], available_days: int) -> dict[str, Optional[Activity]]:
     """Spread recommended activities across the week, inserting rest days.
 
-    Tries to avoid scheduling two High-intensity sessions on consecutive
-    days. Falls back to the original ordering if the constraint cannot
-    be satisfied (e.g. nearly every session is High).
+    Uses interleaving to avoid two consecutive High-intensity days
+    whenever the pool allows it (i.e. count(High) <= count(non-High) + 1).
+    If the pool is dominated by High activities, falls back gracefully.
     """
     schedule: dict[str, Optional[Activity]] = {d: None for d in DAYS}
     active_days = DAYS[:max(0, min(available_days, len(DAYS)))]
 
     sessions: list[Activity] = []
-    for a in activities:
-        sessions.extend([a] * a.sessions_per_week)
+    for act in activities:
+        sessions.extend([act] * act.sessions_per_week)
     random.shuffle(sessions)
 
-    # Greedy placement with a lookahead that avoids consecutive High days.
+    # Split by intensity, interleave High with non-High as much as possible.
+    highs = [s for s in sessions if s.intensity == "High"]
+    others = [s for s in sessions if s.intensity != "High"]
+
     placed: list[Activity] = []
-    remaining = sessions.copy()
-    for i in range(len(active_days)):
-        prev_high = bool(placed) and placed[-1].intensity == "High"
-        pick_idx = None
-        for idx, s in enumerate(remaining):
-            if prev_high and s.intensity == "High":
-                continue
-            pick_idx = idx
-            break
-        if pick_idx is None and remaining:
-            pick_idx = 0  # constraint unsatisfiable — accept it
-        if pick_idx is not None:
-            placed.append(remaining.pop(pick_idx))
+    # Leading toggle: if we have more highs, start with a high.
+    take_high = len(highs) >= len(others)
+    while (highs or others) and len(placed) < len(active_days):
+        if take_high and highs:
+            placed.append(highs.pop(0))
+        elif not take_high and others:
+            placed.append(others.pop(0))
+        elif highs:
+            placed.append(highs.pop(0))
+        elif others:
+            placed.append(others.pop(0))
+        take_high = not take_high
 
     for day, session in zip(active_days, placed):
         schedule[day] = session
