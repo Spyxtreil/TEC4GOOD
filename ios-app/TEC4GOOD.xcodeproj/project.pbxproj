@@ -1,0 +1,423 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00993C040E7906AE5EA84ACB /* Reading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B5AAE5D6DA6D4283FE088 /* Reading.swift */; };
+		0330704313F065C52A8C0D06 /* ConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CEF18E2B8500544A2A2F65 /* ConnectionView.swift */; };
+		12C39AAEFCDF0DE6A4DFB8E0 /* CalibrationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A71F97946C62F9742E72597 /* CalibrationState.swift */; };
+		1498A585C68A65A21CF18883 /* MockDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1B1AACFABD9155339031F1 /* MockDataProvider.swift */; };
+		1A6985553485BB3DC03053A0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC26BABDE8DFCE85919E577F /* Assets.xcassets */; };
+		1C5B9FB474F441E1036F9D32 /* TEC4GOODApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DAA101AA0BE047F65DAD71D /* TEC4GOODApp.swift */; };
+		276008DD5CF44943D27E1AA0 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74684B33F3BBD394A23DDC57 /* Session.swift */; };
+		46882DDED09FCFFA23D1DFA2 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6623A29393FD95373D309BA5 /* HistoryView.swift */; };
+		5E03F911DA7980B3EE327AB9 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B67BA57587B913AF169D607 /* SettingsView.swift */; };
+		6DCDB32ED74176BA390ABCE1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85DABC2F883ACA9FEBFFB3F2 /* ContentView.swift */; };
+		7071A988D29E1C6187C72EF9 /* DisclaimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E46C8B868EBF76DF91A24BA3 /* DisclaimerView.swift */; };
+		8EEEBCF916878DE3717CED11 /* MonitorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1C5DF95A4F60D617AB1756 /* MonitorViewModel.swift */; };
+		99674C978653A4F2EB9E9EFB /* CalibrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96BB9263B91F22668CA1122A /* CalibrationView.swift */; };
+		BBBF59A581D62E96B763877A /* CSVParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0BE7F412F49698BEA980A9 /* CSVParser.swift */; };
+		CFB0650DE827ED950626B858 /* BluetoothManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3544703953FE320824C7B5C7 /* BluetoothManager.swift */; };
+		D280ABFCA4271DA39BCFE375 /* LiveMonitorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E20ED14C814D9F418F25426 /* LiveMonitorView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		3544703953FE320824C7B5C7 /* BluetoothManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothManager.swift; sourceTree = "<group>"; };
+		4B67BA57587B913AF169D607 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		5B5B5AAE5D6DA6D4283FE088 /* Reading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reading.swift; sourceTree = "<group>"; };
+		6623A29393FD95373D309BA5 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		6E20ED14C814D9F418F25426 /* LiveMonitorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveMonitorView.swift; sourceTree = "<group>"; };
+		74684B33F3BBD394A23DDC57 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
+		7DAA101AA0BE047F65DAD71D /* TEC4GOODApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TEC4GOODApp.swift; sourceTree = "<group>"; };
+		85DABC2F883ACA9FEBFFB3F2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		8A71F97946C62F9742E72597 /* CalibrationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalibrationState.swift; sourceTree = "<group>"; };
+		96BB9263B91F22668CA1122A /* CalibrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalibrationView.swift; sourceTree = "<group>"; };
+		AD0BE7F412F49698BEA980A9 /* CSVParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVParser.swift; sourceTree = "<group>"; };
+		AF1B1AACFABD9155339031F1 /* MockDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDataProvider.swift; sourceTree = "<group>"; };
+		B1CEF18E2B8500544A2A2F65 /* ConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionView.swift; sourceTree = "<group>"; };
+		CC26BABDE8DFCE85919E577F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CC9E291BB372639989BB2351 /* TEC4GOOD.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TEC4GOOD.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E46C8B868EBF76DF91A24BA3 /* DisclaimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerView.swift; sourceTree = "<group>"; };
+		FB1C5DF95A4F60D617AB1756 /* MonitorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitorViewModel.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		1E649A5DDF8C417F047D2BC8 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				3544703953FE320824C7B5C7 /* BluetoothManager.swift */,
+				AD0BE7F412F49698BEA980A9 /* CSVParser.swift */,
+				AF1B1AACFABD9155339031F1 /* MockDataProvider.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		87EEFF4F6EF3D75036F6518B /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				FB1C5DF95A4F60D617AB1756 /* MonitorViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		9109EC2F5EC125236ED4904E /* TEC4GOOD */ = {
+			isa = PBXGroup;
+			children = (
+				CC26BABDE8DFCE85919E577F /* Assets.xcassets */,
+				85DABC2F883ACA9FEBFFB3F2 /* ContentView.swift */,
+				7DAA101AA0BE047F65DAD71D /* TEC4GOODApp.swift */,
+				E08295ECB1CFEBBD39837925 /* Models */,
+				1E649A5DDF8C417F047D2BC8 /* Services */,
+				87EEFF4F6EF3D75036F6518B /* ViewModels */,
+				91C2CD299FDDA4F7B7A95E21 /* Views */,
+			);
+			path = TEC4GOOD;
+			sourceTree = "<group>";
+		};
+		91C2CD299FDDA4F7B7A95E21 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				96BB9263B91F22668CA1122A /* CalibrationView.swift */,
+				B1CEF18E2B8500544A2A2F65 /* ConnectionView.swift */,
+				E46C8B868EBF76DF91A24BA3 /* DisclaimerView.swift */,
+				6623A29393FD95373D309BA5 /* HistoryView.swift */,
+				6E20ED14C814D9F418F25426 /* LiveMonitorView.swift */,
+				4B67BA57587B913AF169D607 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		B46FA22CE88851971AC85DEF = {
+			isa = PBXGroup;
+			children = (
+				9109EC2F5EC125236ED4904E /* TEC4GOOD */,
+				C754D29EC8BD3D5BB9DCD394 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C754D29EC8BD3D5BB9DCD394 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC9E291BB372639989BB2351 /* TEC4GOOD.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E08295ECB1CFEBBD39837925 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				8A71F97946C62F9742E72597 /* CalibrationState.swift */,
+				5B5B5AAE5D6DA6D4283FE088 /* Reading.swift */,
+				74684B33F3BBD394A23DDC57 /* Session.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		82FF5832F1B9AAAAFFF2F7A5 /* TEC4GOOD */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3AC95DEB057B3BE29BC53F06 /* Build configuration list for PBXNativeTarget "TEC4GOOD" */;
+			buildPhases = (
+				A7D56343E9685FAF7D89348C /* Sources */,
+				894A05C423900B31A38141A5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TEC4GOOD;
+			packageProductDependencies = (
+			);
+			productName = TEC4GOOD;
+			productReference = CC9E291BB372639989BB2351 /* TEC4GOOD.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5F7771A372FECB4D91925F5D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					82FF5832F1B9AAAAFFF2F7A5 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 5F3F3F2140C9B954749E1BE0 /* Build configuration list for PBXProject "TEC4GOOD" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = B46FA22CE88851971AC85DEF;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = C754D29EC8BD3D5BB9DCD394 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				82FF5832F1B9AAAAFFF2F7A5 /* TEC4GOOD */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		894A05C423900B31A38141A5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A6985553485BB3DC03053A0 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A7D56343E9685FAF7D89348C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CFB0650DE827ED950626B858 /* BluetoothManager.swift in Sources */,
+				BBBF59A581D62E96B763877A /* CSVParser.swift in Sources */,
+				12C39AAEFCDF0DE6A4DFB8E0 /* CalibrationState.swift in Sources */,
+				99674C978653A4F2EB9E9EFB /* CalibrationView.swift in Sources */,
+				0330704313F065C52A8C0D06 /* ConnectionView.swift in Sources */,
+				6DCDB32ED74176BA390ABCE1 /* ContentView.swift in Sources */,
+				7071A988D29E1C6187C72EF9 /* DisclaimerView.swift in Sources */,
+				46882DDED09FCFFA23D1DFA2 /* HistoryView.swift in Sources */,
+				D280ABFCA4271DA39BCFE375 /* LiveMonitorView.swift in Sources */,
+				1498A585C68A65A21CF18883 /* MockDataProvider.swift in Sources */,
+				8EEEBCF916878DE3717CED11 /* MonitorViewModel.swift in Sources */,
+				00993C040E7906AE5EA84ACB /* Reading.swift in Sources */,
+				276008DD5CF44943D27E1AA0 /* Session.swift in Sources */,
+				5E03F911DA7980B3EE327AB9 /* SettingsView.swift in Sources */,
+				1C5B9FB474F441E1036F9D32 /* TEC4GOODApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		33C10AAE2787310CBA5EBB5A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDevelopmentRegion = es;
+				INFOPLIST_KEY_CFBundleDisplayName = TEC4GOOD;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "TEC4GOOD usa Bluetooth para conectarse al sensor de pulso MAX30102 via un ESP32.";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "TEC4GOOD usa Bluetooth para recibir lecturas de pulso y SpO2 del sensor.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.tec4good.TEC4GOOD;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		575DE373D0E4DEAB37C9444E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDevelopmentRegion = es;
+				INFOPLIST_KEY_CFBundleDisplayName = TEC4GOOD;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "TEC4GOOD usa Bluetooth para conectarse al sensor de pulso MAX30102 via un ESP32.";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "TEC4GOOD usa Bluetooth para recibir lecturas de pulso y SpO2 del sensor.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.tec4good.TEC4GOOD;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8D8EA4CFB0C07A04A7CBA2D4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		CB02A7AA15F0AF9BEE5F0F6D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3AC95DEB057B3BE29BC53F06 /* Build configuration list for PBXNativeTarget "TEC4GOOD" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				575DE373D0E4DEAB37C9444E /* Debug */,
+				33C10AAE2787310CBA5EBB5A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5F3F3F2140C9B954749E1BE0 /* Build configuration list for PBXProject "TEC4GOOD" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8D8EA4CFB0C07A04A7CBA2D4 /* Debug */,
+				CB02A7AA15F0AF9BEE5F0F6D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5F7771A372FECB4D91925F5D /* Project object */;
+}

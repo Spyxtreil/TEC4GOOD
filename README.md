@@ -9,6 +9,8 @@ non-clinical**.
 | `adhd_activity_planner.py` | Interactive CLI that generates a weekly exercise plan and daily step target for people with ADHD, with intensity interleaving and an impulse-control ranking. | Python 3.10+ |
 | `nutrition_advisor (1).py` | Interactive CLI that estimates BMR, TDEE, macronutrients and a 5-meal schedule from user inputs (Mifflin-St Jeor). | Python 3.10+ |
 | `pulso_simple.ino` / `sensooooor2.ino` | Arduino sketches for a MAX30102 pulse/SpO₂ prototype. The "full" sketch adds a serial-driven calibration routine, portability across Uno/Nano/ESP8266/ESP32, and a watchdog-style boot retry. | Arduino C++ |
+| `arduino/sensooooor2_ble/` | ESP32-only sketch that exposes pulse/SpO₂ over Bluetooth LE so a phone app can consume readings. | Arduino C++ |
+| `ios-app/` | SwiftUI iOS app (iOS 17+) that connects to the ESP32 over BLE and shows live BPM, SpO₂, and a signal chart. Includes a mock mode that runs without hardware. | Swift 5.9+ |
 
 > ⚠️ **Not a medical device.** These are educational tools. Read
 > [`TERMS_AND_CONDITIONS.md`](TERMS_AND_CONDITIONS.md) before using anything in this repo.
@@ -319,6 +321,14 @@ EEPROM. On next power-up the sketch will auto-load it.
 ├── main.py                       # Unified launcher for both
 ├── pulso_simple.ino              # Minimal MAX30102 pulse sketch
 ├── sensooooor2.ino               # Full sketch with calibration, SpO2, watchdog
+├── arduino/
+│   └── sensooooor2_ble/          # ESP32 BLE peripheral sketch
+│       └── sensooooor2_ble.ino
+├── ios-app/                      # SwiftUI iOS app
+│   ├── project.yml               # xcodegen spec (source of truth)
+│   ├── TEC4GOOD.xcodeproj/       # generated
+│   ├── TEC4GOOD/                 # Swift sources
+│   └── README.md                 # iOS-specific build instructions
 ├── tests/                        # Pytest suite
 ├── .github/workflows/ci.yml      # Lint + tests on every push
 ├── pyproject.toml                # ruff + mypy + pytest config
@@ -469,11 +479,15 @@ every push and pull request. The Arduino sketches are also linted with
 - [ ] Rename `nutrition_advisor (1).py` → `nutrition_advisor.py`.
 - [x] EEPROM persistence for the Arduino calibration state.
 - [x] CSV export of serial samples for offline analysis.
+- [x] ESP32 BLE peripheral sketch (`arduino/sensooooor2_ble/`).
+- [x] iOS app (SwiftUI) with BLE + mock mode (see `ios-app/`).
+- [ ] Persist session history in SwiftData / SQLite.
+- [ ] Export sessions to CSV from the iOS app.
 - [ ] Optional OLED (SSD1306) output for the sensor.
 - [ ] Band-pass filtering of the IR signal before `checkForBeat`.
+- [ ] Android companion app (Kotlin).
 - [ ] Unify the two Python tools so the planner can ingest resting HR
       measured by the Arduino.
-- [ ] React Native companion app for iOS / Android over BLE.
 
 ---
 
